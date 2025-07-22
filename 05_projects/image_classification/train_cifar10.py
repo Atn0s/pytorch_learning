@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
 
 """
-CIFAR-10 Image Classification Project
-This script trains a more advanced CNN on CIFAR-10 with learning rate scheduling and TensorBoard logging.
+CIFAR-10 图像分类项目
+本脚本使用一个类 ResNet 模型在 CIFAR-10 数据集上进行训练，并包含学习率调度和 TensorBoard 日志记录。
 """
 
 import torch
@@ -14,7 +14,7 @@ from torch.utils.data import DataLoader
 from torch.utils.tensorboard import SummaryWriter
 from sklearn.metrics import classification_report
 
-# 1. Define a ResNet-like block for better performance
+# 1. 定义一个类 ResNet 的残差块，以获得更好的性能
 class ResidualBlock(nn.Module):
     def __init__(self, in_channels, out_channels, stride=1):
         super(ResidualBlock, self).__init__()
@@ -23,6 +23,7 @@ class ResidualBlock(nn.Module):
         self.relu = nn.ReLU(inplace=True)
         self.conv2 = nn.Conv2d(out_channels, out_channels, kernel_size=3, stride=1, padding=1, bias=False)
         self.bn2 = nn.BatchNorm2d(out_channels)
+        # 快捷连接，用于处理维度不匹配的情况
         self.shortcut = nn.Sequential()
         if stride != 1 or in_channels != out_channels:
             self.shortcut = nn.Sequential(
@@ -33,11 +34,11 @@ class ResidualBlock(nn.Module):
     def forward(self, x):
         out = self.relu(self.bn1(self.conv1(x)))
         out = self.bn2(self.conv2(out))
-        out += self.shortcut(x)
+        out += self.shortcut(x) # 残差连接
         out = self.relu(out)
         return out
 
-# A simplified ResNet-style model
+# 一个简化的类 ResNet 模型
 class CifarResNet(nn.Module):
     def __init__(self, block, num_blocks, num_classes=10):
         super(CifarResNet, self).__init__()
@@ -68,12 +69,12 @@ class CifarResNet(nn.Module):
         return out
 
 def main():
-    """Main function to run the training and evaluation."""
-    writer = SummaryWriter('runs/cifar10_experiment_1')
+    """主函数，用于运行训练和评估。"""
+    writer = SummaryWriter('runs/cifar10_experiment_1') # TensorBoard writer
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"Using device: {device}")
+    print(f"使用设备: {device}")
 
-    # Data Augmentation and Loading
+    # 数据增强和加载
     transform_train = transforms.Compose([
         transforms.RandomCrop(32, padding=4),
         transforms.RandomHorizontalFlip(),
@@ -89,15 +90,15 @@ def main():
     train_loader = DataLoader(train_dataset, batch_size=128, shuffle=True, num_workers=2)
     test_loader = DataLoader(test_dataset, batch_size=128, shuffle=False, num_workers=2)
 
-    classes = ('plane', 'car', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck')
+    classes = ('飞机', '汽车', '鸟', '猫', '鹿', '狗', '青蛙', '马', '船', '卡车')
 
-    # Model, Loss, Optimizer, Scheduler
+    # 模型、损失、优化器和学习率调度器
     model = CifarResNet(ResidualBlock, [2,2,2]).to(device)
     criterion = nn.CrossEntropyLoss()
     optimizer = optim.Adam(model.parameters(), lr=0.001)
-    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1)
+    scheduler = optim.lr_scheduler.StepLR(optimizer, step_size=5, gamma=0.1) # 每5个epoch学习率乘以0.1
 
-    # Training loop
+    # 训练循环
     for epoch in range(10):
         model.train()
         running_loss = 0.0
@@ -111,14 +112,13 @@ def main():
             running_loss += loss.item()
 
         epoch_loss = running_loss / len(train_loader)
-        writer.add_scalar('training_loss', epoch_loss, epoch)
-        print(f'Epoch [{epoch+1}/10], Loss: {epoch_loss:.4f}')
+        writer.add_scalar('训练损失', epoch_loss, epoch)
+        print(f'周期 [{epoch+1}/10], 损失: {epoch_loss:.4f}')
         scheduler.step()
 
-    # Evaluation
+    # 评估
     model.eval()
-    all_labels = []
-    all_predictions = []
+    all_labels, all_predictions = [], []
     with torch.no_grad():
         for images, labels in test_loader:
             images, labels = images.to(device), labels.to(device)
@@ -127,12 +127,12 @@ def main():
             all_labels.extend(labels.cpu().numpy())
             all_predictions.extend(predicted.cpu().numpy())
 
-    print("\nClassification Report:")
+    print("\n分类报告:")
     print(classification_report(all_labels, all_predictions, target_names=classes))
 
     torch.save(model.state_dict(), 'cifar10_resnet_model.pth')
     writer.close()
-    print("\nModel saved and TensorBoard logging complete.")
+    print("\n模型已保存，TensorBoard 日志记录完成。")
 
 if __name__ == '__main__':
     main()
