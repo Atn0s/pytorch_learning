@@ -2,7 +2,7 @@
 
 """
 PyTorch Autograd Tutorial
-This script demonstrates the automatic differentiation feature of PyTorch.
+This script demonstrates the automatic differentiation feature of PyTorch in depth.
 """
 
 import torch
@@ -13,60 +13,68 @@ def main():
 
     # 1. Basic Gradient Calculation
     print("\n1. Basic Gradient Calculation")
-    # Create a tensor with requires_grad=True to track computation
     x = torch.tensor(2.0, requires_grad=True)
-    print(f"x: {x}")
-
-    # Define a simple function
     y = x**2 + 3*x + 1
-    print(f"y = x^2 + 3x + 1 = {y}")
-
-    # Backpropagate to compute gradients
+    print(f"y = x^2 + 3x + 1 at x=2 is {y}")
     y.backward()
+    print(f"Gradient dy/dx at x=2: {x.grad}")
 
-    # The gradient dy/dx is stored in x.grad
-    print(f"Gradient dy/dx at x=2: {x.grad}") # Expected: 2*x + 3 = 7
+    # 2. Gradients for Tensors
+    print("\n2. Gradients for Tensors")
+    x_tensor = torch.randn(3, requires_grad=True)
+    y_tensor = x_tensor * 2
+    # To backpropagate on a non-scalar output, we need to provide a gradient argument
+    # which is a tensor of matching shape.
+    v = torch.tensor([0.1, 1.0, 0.001], dtype=torch.float)
+    y_tensor.backward(v)
+    print(f"Gradient for a tensor output: {x_tensor.grad}")
 
-    # 2. Gradients with Multiple Variables
-    print("\n2. Gradients with Multiple Variables")
-    a = torch.tensor(1.0, requires_grad=True)
-    b = torch.tensor(3.0, requires_grad=True)
-    z = 2*a**3 + 3*b**2
-    print(f"a: {a}, b: {b}")
-    print(f"z = 2a^3 + 3b^2 = {z}")
+    # 3. Understanding the Computation Graph
+    print("\n3. Understanding the Computation Graph")
+    a = torch.tensor(2.0, requires_grad=True)
+    b = a * 3
+    c = b + 1
+    d = c.sin()
+    print(f"a.grad_fn: {a.grad_fn}")
+    print(f"b.grad_fn: {b.grad_fn}") # MulBackward0
+    print(f"c.grad_fn: {c.grad_fn}") # AddBackward0
+    print(f"d.grad_fn: {d.grad_fn}") # SinBackward0
+    d.backward()
+    print(f"Gradient dd/da: {a.grad}") # cos(c) * 3
 
-    z.backward()
-    print(f"Gradient dz/da at a=1: {a.grad}") # Expected: 6*a^2 = 6
-    print(f"Gradient dz/db at b=3: {b.grad}") # Expected: 6*b = 18
-
-    # 3. Disabling Gradient Tracking
-    print("\n3. Disabling Gradient Tracking")
-    # Using torch.no_grad()
+    # 4. Disabling Gradient Tracking
+    print("\n4. Disabling Gradient Tracking")
+    # Using torch.no_grad() for inference
     with torch.no_grad():
-        k = x**2
-        print(f"k = x^2 within torch.no_grad(): {k}")
-        print(f"k.requires_grad: {k.requires_grad}")
+        k = a**2
+        print(f"k within torch.no_grad() requires_grad: {k.requires_grad}")
+    # Using .detach() to create a new tensor that shares storage but not history
+    j = d.detach()
+    print(f"j detached from d requires_grad: {j.requires_grad}")
 
-    # Using .detach()
-    j = y.detach()
-    print(f"j = y.detach(): {j}")
-    print(f"j.requires_grad: {j.requires_grad}")
-
-    # 4. Gradient Accumulation
-    print("\n4. Gradient Accumulation")
+    # 5. Gradient Accumulation and Zeroing
+    print("\n5. Gradient Accumulation")
     q = torch.tensor(3.0, requires_grad=True)
     r = q**2
-    r.backward() # First backward pass
-    print(f"Gradient dr/dq after first pass: {q.grad}") # 2*q = 6
-
+    r.backward()
+    print(f"Gradient dr/dq after first pass: {q.grad}")
     s = q**3
-    s.backward() # Second backward pass
-    print(f"Gradient after second pass (accumulated): {q.grad}") # 6 + 3*q^2 = 6 + 27 = 33
-
-    # Zero out the gradient to prevent accumulation
+    s.backward()
+    print(f"Gradient after second pass (accumulated): {q.grad}")
+    # Zero out the gradient to prevent accumulation in the next iteration
     q.grad.zero_()
     print(f"Gradient after zeroing: {q.grad}")
 
+    # 6. Higher-Order Derivatives (Gradient of a Gradient)
+    print("\n6. Higher-Order Derivatives")
+    x_ho = torch.tensor(2.0, requires_grad=True)
+    y_ho = x_ho**3
+    # First derivative
+    first_grad = torch.autograd.grad(y_ho, x_ho, create_graph=True)[0]
+    print(f"First derivative dy/dx = 3x^2 at x=2: {first_grad}")
+    # Second derivative
+    second_grad = torch.autograd.grad(first_grad, x_ho)[0]
+    print(f"Second derivative d^2y/dx^2 = 6x at x=2: {second_grad}")
 
 if __name__ == "__main__":
     main()

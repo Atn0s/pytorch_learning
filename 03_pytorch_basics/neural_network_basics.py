@@ -2,28 +2,25 @@
 
 """
 PyTorch Neural Network Basics
-This script demonstrates how to build a simple neural network using torch.nn.
+This script demonstrates how to build, train, and use a simple neural network.
 """
 
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from torch.utils.data import TensorDataset, DataLoader
 
-# 1. Define the Neural Network
-class SimpleNet(nn.Module):
-    """A simple fully-connected neural network."""
-    def __init__(self, input_size, hidden_size, output_size):
-        super(SimpleNet, self).__init__()
-        self.fc1 = nn.Linear(input_size, hidden_size)
-        self.relu = nn.ReLU()
-        self.fc2 = nn.Linear(hidden_size, output_size)
-
-    def forward(self, x):
-        """Forward pass through the network."""
-        out = self.fc1(x)
-        out = self.relu(out)
-        out = self.fc2(out)
-        return out
+# 1. Define the Neural Network using nn.Sequential for simplicity
+def create_model(input_size, hidden_size, output_size):
+    """Creates a simple feed-forward network."""
+    model = nn.Sequential(
+        nn.Linear(input_size, hidden_size),
+        nn.ReLU(),
+        nn.Linear(hidden_size, hidden_size * 2),
+        nn.ReLU(),
+        nn.Linear(hidden_size * 2, output_size)
+    )
+    return model
 
 def main():
     """Main function to demonstrate neural network basics."""
@@ -31,51 +28,68 @@ def main():
 
     # Hyperparameters
     input_size = 10
-    hidden_size = 32
-    output_size = 1
-    learning_rate = 0.01
-    num_epochs = 5
+    hidden_size = 64
+    output_size = 2 # Example for a 2-class classification
+    learning_rate = 0.001
+    num_epochs = 10
+    batch_size = 32
 
-    # 2. Instantiate the model, loss function, and optimizer
-    model = SimpleNet(input_size, hidden_size, output_size)
-    criterion = nn.MSELoss()  # Mean Squared Error for regression
-    optimizer = optim.SGD(model.parameters(), lr=learning_rate)
+    # 2. Create Model, Loss Function, and Optimizer
+    model = create_model(input_size, hidden_size, output_size)
+    criterion = nn.CrossEntropyLoss() # Suitable for classification
+    optimizer = optim.Adam(model.parameters(), lr=learning_rate)
 
     print("\nModel Architecture:")
     print(model)
 
-    # 3. Generate some dummy data
-    X_train = torch.randn(100, input_size)
-    y_train = torch.randn(100, output_size)
+    # 3. Data Loading
+    # Generate dummy data
+    X_train = torch.randn(500, input_size)
+    y_train = torch.randint(0, output_size, (500,))
+    # Create a dataset and dataloader
+    train_dataset = TensorDataset(X_train, y_train)
+    train_loader = DataLoader(dataset=train_dataset, batch_size=batch_size, shuffle=True)
 
     # 4. Training Loop
     print("\nStarting Training...")
     for epoch in range(num_epochs):
-        # Forward pass
-        outputs = model(X_train)
-        loss = criterion(outputs, y_train)
+        epoch_loss = 0.0
+        for i, (inputs, labels) in enumerate(train_loader):
+            # Forward pass
+            outputs = model(inputs)
+            loss = criterion(outputs, labels)
 
-        # Backward and optimize
-        optimizer.zero_grad()  # Clear gradients from previous epoch
-        loss.backward()
-        optimizer.step()
+            # Backward and optimize
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        print(f'Epoch [{epoch+1}/{num_epochs}], Loss: {loss.item():.4f}')
+            epoch_loss += loss.item()
 
+        print(f'Epoch [{epoch+1}/{num_epochs}], Average Loss: {epoch_loss/len(train_loader):.4f}')
     print("Training finished!")
 
-    # 5. Inference (making predictions)
-    print("\nMaking a prediction...")
-    # Create a new dummy input
+    # 5. Saving and Loading the Model
+    print("\n5. Saving and Loading Model")
+    # Save the model state dictionary
+    torch.save(model.state_dict(), 'simple_net.pth')
+    print("Model saved to simple_net.pth")
+
+    # Load the model
+    loaded_model = create_model(input_size, hidden_size, output_size)
+    loaded_model.load_state_dict(torch.load('simple_net.pth'))
+    loaded_model.eval() # Set to evaluation mode
+    print("Model loaded from simple_net.pth")
+
+    # 6. Inference
+    print("\n6. Making a prediction")
     X_test = torch.randn(1, input_size)
-
-    # Set the model to evaluation mode
-    model.eval()
-
     with torch.no_grad():
-        prediction = model(X_test)
+        prediction = loaded_model(X_test)
+        predicted_class = torch.argmax(prediction, dim=1)
         print(f"Input: {X_test}")
-        print(f"Prediction: {prediction}")
+        print(f"Output Raw: {prediction}")
+        print(f"Predicted class: {predicted_class.item()}")
 
 if __name__ == "__main__":
     main()
