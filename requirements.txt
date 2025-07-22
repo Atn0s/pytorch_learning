@@ -1,0 +1,53 @@
+# Python基础和工具
+jupyter>=1.0.0
+ipython>=8.0.0
+notebook>=6.4.0
+
+# 数据科学基础包
+numpy>=1.21.0
+pandas>=1.3.0
+matplotlib>=3.5.0
+seaborn>=0.11.0
+scipy>=1.7.0
+scikit-learn>=1.0.0
+
+# 深度学习框架
+torch>=2.0.0
+torchvision>=0.15.0
+torchaudio>=2.0.0
+
+# 深度学习辅助工具
+tensorboard>=2.8.0
+pillow>=8.3.0
+opencv-python>=4.5.0
+albumentations>=1.3.0
+
+# 自然语言处理
+transformers>=4.20.0
+tokenizers>=0.13.0
+datasets>=2.0.0
+
+# 数据处理和可视化
+plotly>=5.10.0
+bokeh>=2.4.0
+wordcloud>=1.8.0
+
+# 实用工具
+tqdm>=4.62.0
+requests>=2.28.0
+beautifulsoup4>=4.11.0
+lxml>=4.9.0
+
+# 开发工具
+black>=22.0.0
+flake8>=5.0.0
+pytest>=7.0.0
+jupyterlab>=3.4.0
+
+# 机器学习可视化
+wandb>=0.13.0
+mlflow>=1.28.0
+
+# 图像处理
+imageio>=2.20.0
+scikit-image>=0.19.0
