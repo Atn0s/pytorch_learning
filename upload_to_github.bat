@@ -1,6 +1,6 @@
 @echo off
 echo ========================================
-echo  上传Python PyTorch学习项目到GitHub
+echo  上传Python PyTorch学习项目到Gitee
 echo ========================================
 echo.
 
@@ -53,7 +53,7 @@ if %errorlevel% neq 0 (
 
 REM 添加远程仓库
 echo [步骤5] 添加远程仓库...
-git remote add origin https://github.com/Atn0s/pytorch_learing.git
+git remote add origin https://gitee.com/Atnn0s/pytorch_learning.git
 if %errorlevel% neq 0 (
     echo [错误] 添加远程仓库失败！
     echo 请检查GitHub仓库地址是否正确。
@@ -61,9 +61,9 @@ if %errorlevel% neq 0 (
     exit /b 1
 )
 
-REM 推送到GitHub
-echo [步骤6] 推送到GitHub...
-echo 注意: 首次推送可能需要您输入GitHub用户名和密码或Personal Access Token
+REM 推送到Gitee
+echo [步骤6] 推送到Gitee...
+echo 注意: 首次推送可能需要您输入Gitee用户名和密码
 git push -u origin main
 if %errorlevel% neq 0 (
     echo [错误] 推送失败！
@@ -83,7 +83,7 @@ echo          上传成功！🎉
 echo ========================================
 echo.
 echo 您的项目已成功上传到:
-echo https://github.com/Atn0s/pytorch_learing
+echo https://gitee.com/Atnn0s/pytorch_learning
 echo.
 echo 下次更新代码时，可以使用以下命令:
 echo git add .

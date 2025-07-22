@@ -1,6 +1,6 @@
-# GitHub上传指南 📚
+# Gitee上传指南 📚
 
-本文档将指导您如何将Python PyTorch学习项目上传到GitHub。
+本文档将指导您如何将Python PyTorch学习项目上传到Gitee。
 
 ## 📋 准备工作
 
@@ -20,14 +20,14 @@ git config --global user.name "您的姓名"
 git config --global user.email "您的邮箱@example.com"
 ```
 
-### 3. 创建GitHub仓库
-1. 登录 [GitHub](https://github.com)
-2. 点击右上角的 "+" 号，选择 "New repository"
+### 3. 创建Gitee仓库
+1. 登录 [Gitee](https://gitee.com)
+2. 点击右上角的 "+" 号，选择 "新建仓库"
 3. 仓库名称输入：`pytorch_learning`
 4. 描述输入：`Python和PyTorch深度学习完整教程`
-5. 选择 "Public"（公开）
-6. **不要**勾选 "Add a README file"（我们已经有了）
-7. 点击 "Create repository"
+5. 选择 "开源"（公开）
+6. **不要**勾选 "使用Readme文件初始化这个仓库"（我们已经有了）
+7. 点击 "创建"
 
 ## 🚀 上传方法
 
@@ -55,19 +55,25 @@ git commit -m "初始提交: Python和PyTorch深度学习完整教程"
 git branch -M main
 
 # 5. 添加远程仓库
-git remote add origin https://github.com/Atn0s/pytorch_learing.git
+git remote add origin https://gitee.com/Atnn0s/pytorch_learning.git
 
-# 6. 推送到GitHub
+# 6. 推送到Gitee
 git push -u origin main
 ```
 
 ## 🔐 认证方式
 
-### Personal Access Token（推荐）
+### 用户名密码认证（推荐）
 
-1. 访问 GitHub Settings > Developer settings > Personal access tokens
-2. 点击 "Generate new token"
-3. 选择适当的权限（至少需要 repo 权限）
+Gitee支持直接使用用户名和密码进行认证：
+1. 推送时输入您的Gitee用户名
+2. 输入您的Gitee密码
+
+### 私人令牌（高级用户）
+
+1. 访问 Gitee 设置 > 私人令牌
+2. 点击 "生成新令牌"
+3. 选择适当的权限
 4. 复制生成的token
 5. 在Git要求密码时，输入token而不是密码
 
@@ -93,10 +99,10 @@ git push
 ## 🚨 常见问题
 
 ### Q: 推送时提示认证失败？
-A: 确保您的GitHub用户名和密码/Token正确。注意：GitHub已不支持密码认证，请使用Personal Access Token。
+A: 确保您的Gitee用户名和密码正确。Gitee支持用户名密码认证，也可以使用私人令牌。
 
 ### Q: 提示仓库不存在？
-A: 检查仓库URL是否正确，确保仓库已在GitHub上创建。
+A: 检查仓库URL是否正确，确保仓库已在Gitee上创建。
 
 ### Q: 文件太大无法上传？
 A: GitHub单文件限制100MB，仓库大小限制1GB。如有大文件，考虑使用Git LFS。
